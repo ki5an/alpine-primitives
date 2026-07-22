@@ -1,7 +1,7 @@
 import {
   setAttribute,
   createPresence,
-  createLazyPortal,
+  mountTemplate,
   computePosition,
   applyPosition,
   autoUpdate,
@@ -12,20 +12,32 @@ import {
   type AlpineGlobal,
   type DirectiveCallback,
 } from '@alpine-primitives/core'
-import { useTooltipContext, requireContext, claimActive, releaseActive } from '../context'
+import {
+  TOOLTIP_CONTEXT,
+  useTooltipContext,
+  requireContext,
+  claimActive,
+  releaseActive,
+} from '../context'
 
 const ARROW_PADDING = 8
 
-export function content(_Alpine: AlpineGlobal): DirectiveCallback {
+export function content(Alpine: AlpineGlobal): DirectiveCallback {
   return (el, _directive, { effect, cleanup }) => {
     const ctx = useTooltipContext(el)
     if (!requireContext(ctx, 'x-tooltip-content')) return
 
-    el.id = ctx.ids.content
-    setAttribute(el, 'role', 'tooltip')
-    el.style.pointerEvents = 'none'
-    const presence = createPresence(el, { initial: ctx.open })
-    const portal = createLazyPortal(el)
+    const mounted = mountTemplate(Alpine, el, {
+      contextKey: TOOLTIP_CONTEXT,
+      context: ctx,
+    })
+    if (!mounted) return
+    const { root, portal } = mounted
+
+    root.id = ctx.ids.content
+    setAttribute(root, 'role', 'tooltip')
+    root.style.pointerEvents = 'none'
+    const presence = createPresence(root, { initial: ctx.open })
 
     let stopAutoUpdate = noop
     let removeEscape = noop
@@ -34,7 +46,7 @@ export function content(_Alpine: AlpineGlobal): DirectiveCallback {
     function positionArrow(anchorEl: HTMLElement, side: Side): void {
       const arrow = ctx!.arrowEl
       if (!arrow) return
-      const c = el.getBoundingClientRect()
+      const c = root.getBoundingClientRect()
       const a = anchorEl.getBoundingClientRect()
       const aw = arrow.offsetWidth
       const ah = arrow.offsetHeight
@@ -54,11 +66,11 @@ export function content(_Alpine: AlpineGlobal): DirectiveCallback {
     function update(): void {
       const anchorEl = ctx!.triggerEl
       if (!anchorEl) return
-      const result = computePosition(anchorEl, el, {
+      const result = computePosition(anchorEl, root, {
         placement: ctx!.placement,
         offset: ctx!.offset,
       })
-      applyPosition(el, result)
+      applyPosition(root, result)
       positionArrow(anchorEl, result.side)
     }
 
@@ -66,7 +78,7 @@ export function content(_Alpine: AlpineGlobal): DirectiveCallback {
       claimActive(close)
       presence.show()
       requestAnimationFrame(() => {
-        stopAutoUpdate = autoUpdate(ctx!.triggerEl ?? el, el, update)
+        stopAutoUpdate = autoUpdate(ctx!.triggerEl ?? root, root, update)
         removeEscape = onKey(document, Keys.Escape, close)
       })
     }
@@ -91,7 +103,7 @@ export function content(_Alpine: AlpineGlobal): DirectiveCallback {
 
     cleanup(() => {
       doClose()
-      portal.unmount()
+      mounted.destroy()
     })
   }
 }

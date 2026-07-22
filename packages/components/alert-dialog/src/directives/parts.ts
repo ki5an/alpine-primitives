@@ -1,12 +1,12 @@
 import {
   setAttribute,
   createPresence,
-  createLazyPortal,
+  mountTemplate,
   addListener,
   type AlpineGlobal,
   type DirectiveCallback,
 } from '@alpine-primitives/core'
-import { useAlertDialogContext, requireContext } from '../context'
+import { ALERT_DIALOG_CONTEXT, useAlertDialogContext, requireContext } from '../context'
 
 export function trigger(_Alpine: AlpineGlobal): DirectiveCallback {
   return (el, _directive, { effect, cleanup }) => {
@@ -24,20 +24,22 @@ export function trigger(_Alpine: AlpineGlobal): DirectiveCallback {
   }
 }
 
-export function overlay(_Alpine: AlpineGlobal): DirectiveCallback {
+export function overlay(Alpine: AlpineGlobal): DirectiveCallback {
   return (el, _directive, { effect, cleanup }) => {
     const ctx = useAlertDialogContext(el)
     if (!requireContext(ctx, 'x-alert-dialog-overlay')) return
-    el.setAttribute('data-alert-dialog-overlay', '')
-    const presence = createPresence(el, { initial: ctx.open })
-    const portal = createLazyPortal(el)
+    const mounted = mountTemplate(Alpine, el, { contextKey: ALERT_DIALOG_CONTEXT, context: ctx })
+    if (!mounted) return
+    const { root, portal } = mounted
+    root.setAttribute('data-alert-dialog-overlay', '')
+    const presence = createPresence(root, { initial: ctx.open })
     effect(() => {
       if (ctx.open) {
         portal.mount()
         presence.show()
       } else presence.hide()
     })
-    cleanup(() => portal.unmount())
+    cleanup(() => mounted.destroy())
   }
 }
 

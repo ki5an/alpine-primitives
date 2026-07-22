@@ -1,7 +1,7 @@
 import {
   setAttribute,
   createPresence,
-  createLazyPortal,
+  mountTemplate,
   createFocusTrap,
   createDismissableLayer,
   lockBodyScroll,
@@ -9,25 +9,31 @@ import {
   type AlpineGlobal,
   type DirectiveCallback,
 } from '@alpine-primitives/core'
-import { useSheetContext, requireContext } from '../context'
+import { SHEET_CONTEXT, useSheetContext, requireContext } from '../context'
 
-export function content(_Alpine: AlpineGlobal): DirectiveCallback {
+export function content(Alpine: AlpineGlobal): DirectiveCallback {
   return (el, _directive, { effect, cleanup }) => {
     const ctx = useSheetContext(el)
     if (!requireContext(ctx, 'x-sheet-content')) return
 
-    el.id = ctx.ids.content
-    setAttribute(el, 'role', 'dialog')
-    setAttribute(el, 'tabindex', '-1')
-    setAttribute(el, 'aria-labelledby', ctx.ids.title)
-    setAttribute(el, 'aria-describedby', ctx.ids.description)
-    setAttribute(el, 'data-side', ctx.side)
-    if (ctx.modal) setAttribute(el, 'aria-modal', 'true')
-    const presence = createPresence(el, { initial: ctx.open })
-    const portal = createLazyPortal(el)
+    const mounted = mountTemplate(Alpine, el, {
+      contextKey: SHEET_CONTEXT,
+      context: ctx,
+    })
+    if (!mounted) return
+    const { root, portal } = mounted
 
-    const trap = createFocusTrap(el)
-    const layer = createDismissableLayer(el, {
+    root.id = ctx.ids.content
+    setAttribute(root, 'role', 'dialog')
+    setAttribute(root, 'tabindex', '-1')
+    setAttribute(root, 'aria-labelledby', ctx.ids.title)
+    setAttribute(root, 'aria-describedby', ctx.ids.description)
+    setAttribute(root, 'data-side', ctx.side)
+    if (ctx.modal) setAttribute(root, 'aria-modal', 'true')
+    const presence = createPresence(root, { initial: ctx.open })
+
+    const trap = createFocusTrap(root)
+    const layer = createDismissableLayer(root, {
       onDismiss: () => ctx.setOpen(false),
     })
 
@@ -60,7 +66,7 @@ export function content(_Alpine: AlpineGlobal): DirectiveCallback {
       layer.deactivate()
       unlockScroll()
       trap.deactivate()
-      portal.unmount()
+      mounted.destroy()
     })
   }
 }

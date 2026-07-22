@@ -1,21 +1,27 @@
 import {
   createPresence,
-  createLazyPortal,
+  mountTemplate,
   addListener,
   type AlpineGlobal,
   type DirectiveCallback,
 } from '@alpine-primitives/core'
-import { useDialogContext } from '../context'
+import { DIALOG_CONTEXT, useDialogContext } from '../context'
 import { requireContext } from '../utils'
 
-export function overlay(_Alpine: AlpineGlobal): DirectiveCallback {
+export function overlay(Alpine: AlpineGlobal): DirectiveCallback {
   return (el, _directive, { effect, cleanup }) => {
     const ctx = useDialogContext(el)
     if (!requireContext(ctx, 'x-dialog-overlay')) return
 
-    el.setAttribute('data-dialog-overlay', '')
-    const presence = createPresence(el, { initial: ctx.open })
-    const portal = createLazyPortal(el)
+    const mounted = mountTemplate(Alpine, el, {
+      contextKey: DIALOG_CONTEXT,
+      context: ctx,
+    })
+    if (!mounted) return
+    const { root, portal } = mounted
+
+    root.setAttribute('data-dialog-overlay', '')
+    const presence = createPresence(root, { initial: ctx.open })
 
     effect(() => {
       if (ctx.open) {
@@ -26,16 +32,16 @@ export function overlay(_Alpine: AlpineGlobal): DirectiveCallback {
 
     effect(() => {
       const z = ctx.zIndex
-      if (z) el.style.zIndex = String(z.overlay)
+      if (z) root.style.zIndex = String(z.overlay)
     })
 
-    const stop = addListener(el, 'click', () => {
+    const stop = addListener(root, 'click', () => {
       if (ctx.modal) ctx.setOpen(false)
     })
 
     cleanup(() => {
       stop()
-      portal.unmount()
+      mounted.destroy()
     })
   }
 }

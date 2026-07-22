@@ -1,7 +1,7 @@
 import {
   setAttribute,
   createPresence,
-  createLazyPortal,
+  mountTemplate,
   createFocusTrap,
   lockBodyScroll,
   onKey,
@@ -10,34 +10,40 @@ import {
   type AlpineGlobal,
   type DirectiveCallback,
 } from '@alpine-primitives/core'
-import { useDialogContext } from '../context'
+import { DIALOG_CONTEXT, useDialogContext } from '../context'
 import { requireContext } from '../utils'
 
-export function content(_Alpine: AlpineGlobal): DirectiveCallback {
+export function content(Alpine: AlpineGlobal): DirectiveCallback {
   return (el, _directive, { effect, cleanup }) => {
     const ctx = useDialogContext(el)
     if (!requireContext(ctx, 'x-dialog-content')) return
 
-    el.id = ctx.ids.content
-    setAttribute(el, 'role', 'dialog')
-    setAttribute(el, 'tabindex', '-1')
-    setAttribute(el, 'aria-labelledby', ctx.ids.title)
-    setAttribute(el, 'aria-describedby', ctx.ids.description)
+    const mounted = mountTemplate(Alpine, el, {
+      contextKey: DIALOG_CONTEXT,
+      context: ctx,
+    })
+    if (!mounted) return
+    const { root, portal } = mounted
 
-    const presence = createPresence(el, { initial: ctx.open })
+    root.id = ctx.ids.content
+    setAttribute(root, 'role', 'dialog')
+    setAttribute(root, 'tabindex', '-1')
+    setAttribute(root, 'aria-labelledby', ctx.ids.title)
+    setAttribute(root, 'aria-describedby', ctx.ids.description)
 
-    const trap = createFocusTrap(el)
-    const portal = createLazyPortal(el)
+    const presence = createPresence(root, { initial: ctx.open })
+
+    const trap = createFocusTrap(root)
     let unlockScroll = noop
     let removeEscape = noop
 
     effect(() => {
-      setAttribute(el, 'aria-modal', ctx.modal ? 'true' : null)
+      setAttribute(root, 'aria-modal', ctx.modal ? 'true' : null)
     })
 
     effect(() => {
       const z = ctx.zIndex
-      if (z) el.style.zIndex = String(z.content)
+      if (z) root.style.zIndex = String(z.content)
     })
 
     let wasOpen = ctx.open
@@ -69,7 +75,7 @@ export function content(_Alpine: AlpineGlobal): DirectiveCallback {
       unlockScroll()
       removeEscape()
       trap.deactivate()
-      portal.unmount()
+      mounted.destroy()
     })
   }
 }

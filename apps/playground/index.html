@@ -24,21 +24,23 @@
           <button class="btn" x-dialog-trigger>Open dialog</button>
           <p class="status">State: <strong x-text="$dialog.open ? 'open' : 'closed'"></strong></p>
 
-          <div class="overlay" x-dialog-overlay></div>
-          <div class="panel" x-dialog-content>
-            <h3 x-dialog-title>Delete project</h3>
-            <p x-dialog-description>This action cannot be undone. This will permanently delete the project.</p>
+          <template x-dialog-overlay><div class="overlay"></div></template>
+          <template x-dialog-content>
+            <div class="panel">
+              <h3 x-dialog-title>Delete project</h3>
+              <p x-dialog-description>This action cannot be undone. This will permanently delete the project.</p>
 
-            <label class="field">
-              Type <strong>DELETE</strong> to confirm
-              <input type="text" placeholder="DELETE" />
-            </label>
+              <label class="field">
+                Type <strong>DELETE</strong> to confirm
+                <input type="text" placeholder="DELETE" />
+              </label>
 
-            <footer class="actions">
-              <button class="btn ghost" x-dialog-close>Cancel</button>
-              <button class="btn danger" x-dialog-close>Delete</button>
-            </footer>
-          </div>
+              <footer class="actions">
+                <button class="btn ghost" x-dialog-close>Cancel</button>
+                <button class="btn danger" x-dialog-close>Delete</button>
+              </footer>
+            </div>
+          </template>
         </div>
       </section>
 
@@ -52,16 +54,18 @@
         <div x-alert-dialog>
           <button class="btn danger" x-alert-dialog-trigger>Delete account</button>
 
-          <div class="overlay" x-alert-dialog-overlay></div>
-          <div class="panel" x-alert-dialog-content>
-            <h3 x-alert-dialog-title>Are you absolutely sure?</h3>
-            <p x-alert-dialog-description>This permanently deletes your account and all associated data.</p>
+          <template x-alert-dialog-overlay><div class="overlay"></div></template>
+          <template x-alert-dialog-content>
+            <div class="panel">
+              <h3 x-alert-dialog-title>Are you absolutely sure?</h3>
+              <p x-alert-dialog-description>This permanently deletes your account and all associated data.</p>
 
-            <footer class="actions">
-              <button class="btn ghost" x-alert-dialog-cancel>Cancel</button>
-              <button class="btn danger" x-alert-dialog-action @click="alert('Account deleted')">Yes, delete</button>
-            </footer>
-          </div>
+              <footer class="actions">
+                <button class="btn ghost" x-alert-dialog-cancel>Cancel</button>
+                <button class="btn danger" x-alert-dialog-action @click="alert('Account deleted')">Yes, delete</button>
+              </footer>
+            </div>
+          </template>
         </div>
       </section>
 
@@ -75,15 +79,17 @@
         <div x-popover="{ placement: 'bottom-start' }">
           <button class="btn" x-popover-trigger>Options ▾</button>
 
-          <div class="popover" x-popover-content>
-            <div class="arrow" x-popover-arrow></div>
-            <div class="menu">
-              <button class="menu-item">Rename</button>
-              <button class="menu-item">Duplicate</button>
-              <button class="menu-item">Archive</button>
+          <template x-popover-content>
+            <div class="popover">
+              <div class="arrow" x-popover-arrow></div>
+              <div class="menu">
+                <button class="menu-item">Rename</button>
+                <button class="menu-item">Duplicate</button>
+                <button class="menu-item">Archive</button>
+              </div>
+              <button class="btn ghost sm" x-popover-close>Close</button>
             </div>
-            <button class="btn ghost sm" x-popover-close>Close</button>
-          </div>
+          </template>
         </div>
       </section>
 
@@ -97,26 +103,32 @@
         <div class="row">
           <span x-tooltip="{ placement: 'top', delay: 300 }">
             <button class="icon-btn" x-tooltip-trigger aria-label="Add item">＋</button>
-            <div class="tip" x-tooltip-content>
-              <div class="tip-arrow" x-tooltip-arrow></div>
-              Add item
-            </div>
+            <template x-tooltip-content>
+              <div class="tip">
+                <div class="tip-arrow" x-tooltip-arrow></div>
+                Add item
+              </div>
+            </template>
           </span>
 
           <span x-tooltip="{ placement: 'bottom' }">
             <button class="icon-btn" x-tooltip-trigger aria-label="Settings">⚙</button>
-            <div class="tip" x-tooltip-content>
-              <div class="tip-arrow" x-tooltip-arrow></div>
-              Settings
-            </div>
+            <template x-tooltip-content>
+              <div class="tip">
+                <div class="tip-arrow" x-tooltip-arrow></div>
+                Settings
+              </div>
+            </template>
           </span>
 
           <span x-tooltip="{ placement: 'right' }">
             <button class="icon-btn" x-tooltip-trigger aria-label="Delete">🗑</button>
-            <div class="tip" x-tooltip-content>
-              <div class="tip-arrow" x-tooltip-arrow></div>
-              Delete
-            </div>
+            <template x-tooltip-content>
+              <div class="tip">
+                <div class="tip-arrow" x-tooltip-arrow></div>
+                Delete
+              </div>
+            </template>
           </span>
         </div>
       </section>
@@ -132,13 +144,15 @@
           Follow
           <span x-hover-card="{ openDelay: 300, closeDelay: 200 }">
             <a class="link" x-hover-card-trigger href="#">@adam</a>
-            <div class="card-pop" x-hover-card-content>
-              <div class="card-arrow" x-hover-card-arrow></div>
-              <div class="avatar">A</div>
-              <strong>Adam Wathan</strong>
-              <span class="muted">@adam · Building things</span>
-              <a class="btn sm" href="#">Follow</a>
-            </div>
+            <template x-hover-card-content>
+              <div class="card-pop">
+                <div class="card-arrow" x-hover-card-arrow></div>
+                <div class="avatar">A</div>
+                <strong>Adam Wathan</strong>
+                <span class="muted">@adam · Building things</span>
+                <a class="btn sm" href="#">Follow</a>
+              </div>
+            </template>
           </span>
           for updates.
         </div>
@@ -154,18 +168,20 @@
         <div x-sheet.right>
           <button class="btn" x-sheet-trigger>Open settings</button>
 
-          <div class="overlay" x-sheet-overlay></div>
-          <div class="sheet" x-sheet-content>
-            <h3 x-sheet-title>Settings</h3>
-            <p x-sheet-description>Manage your workspace preferences.</p>
+          <template x-sheet-overlay><div class="overlay"></div></template>
+          <template x-sheet-content>
+            <div class="sheet">
+              <h3 x-sheet-title>Settings</h3>
+              <p x-sheet-description>Manage your workspace preferences.</p>
 
-            <label class="field">Workspace name<input type="text" value="Acme Inc" /></label>
-            <label class="field">Notifications<input type="text" placeholder="All activity" /></label>
+              <label class="field">Workspace name<input type="text" value="Acme Inc" /></label>
+              <label class="field">Notifications<input type="text" placeholder="All activity" /></label>
 
-            <footer class="actions">
-              <button class="btn" x-sheet-close>Done</button>
-            </footer>
-          </div>
+              <footer class="actions">
+                <button class="btn" x-sheet-close>Done</button>
+              </footer>
+            </div>
+          </template>
         </div>
       </section>
 
@@ -179,23 +195,25 @@
         <div x-drawer.bottom>
           <button class="btn" x-drawer-trigger>Open filters</button>
 
-          <div class="overlay" x-drawer-overlay></div>
-          <div class="drawer" x-drawer-content>
-            <div class="grabber" x-drawer-handle></div>
-            <h3 x-drawer-title>Filters</h3>
-            <p x-drawer-description>Refine the results. Drag the handle to close.</p>
+          <template x-drawer-overlay><div class="overlay"></div></template>
+          <template x-drawer-content>
+            <div class="drawer">
+              <div class="grabber" x-drawer-handle></div>
+              <h3 x-drawer-title>Filters</h3>
+              <p x-drawer-description>Refine the results. Drag the handle to close.</p>
 
-            <div class="chips">
-              <button class="chip">Available</button>
-              <button class="chip">On sale</button>
-              <button class="chip">New</button>
-              <button class="chip">Popular</button>
+              <div class="chips">
+                <button class="chip">Available</button>
+                <button class="chip">On sale</button>
+                <button class="chip">New</button>
+                <button class="chip">Popular</button>
+              </div>
+
+              <footer class="actions">
+                <button class="btn" x-drawer-close>Apply</button>
+              </footer>
             </div>
-
-            <footer class="actions">
-              <button class="btn" x-drawer-close>Apply</button>
-            </footer>
-          </div>
+          </template>
         </div>
       </section>
     </main>

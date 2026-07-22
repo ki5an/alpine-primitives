@@ -1,12 +1,12 @@
 import {
   setAttribute,
   createPresence,
-  createLazyPortal,
+  mountTemplate,
   addListener,
   type AlpineGlobal,
   type DirectiveCallback,
 } from '@alpine-primitives/core'
-import { useDrawerContext, requireContext } from '../context'
+import { DRAWER_CONTEXT, useDrawerContext, requireContext } from '../context'
 
 export function trigger(_Alpine: AlpineGlobal): DirectiveCallback {
   return (el, _directive, { effect, cleanup }) => {
@@ -24,13 +24,15 @@ export function trigger(_Alpine: AlpineGlobal): DirectiveCallback {
   }
 }
 
-export function overlay(_Alpine: AlpineGlobal): DirectiveCallback {
+export function overlay(Alpine: AlpineGlobal): DirectiveCallback {
   return (el, _directive, { effect, cleanup }) => {
     const ctx = useDrawerContext(el)
     if (!requireContext(ctx, 'x-drawer-overlay')) return
-    el.setAttribute('data-drawer-overlay', '')
-    const presence = createPresence(el, { initial: ctx.open })
-    const portal = createLazyPortal(el)
+    const mounted = mountTemplate(Alpine, el, { contextKey: DRAWER_CONTEXT, context: ctx })
+    if (!mounted) return
+    const { root, portal } = mounted
+    root.setAttribute('data-drawer-overlay', '')
+    const presence = createPresence(root, { initial: ctx.open })
     effect(() => {
       if (ctx.open) {
         portal.mount()
@@ -38,11 +40,11 @@ export function overlay(_Alpine: AlpineGlobal): DirectiveCallback {
       } else presence.hide()
     })
     cleanup(
-      addListener(el, 'click', () => {
+      addListener(root, 'click', () => {
         if (ctx.modal) ctx.setOpen(false)
       }),
     )
-    cleanup(() => portal.unmount())
+    cleanup(() => mounted.destroy())
   }
 }
 

@@ -1,7 +1,7 @@
 import {
   setAttribute,
   createPresence,
-  createLazyPortal,
+  mountTemplate,
   createFocusTrap,
   createDismissableLayer,
   lockBodyScroll,
@@ -9,24 +9,30 @@ import {
   type AlpineGlobal,
   type DirectiveCallback,
 } from '@alpine-primitives/core'
-import { useAlertDialogContext, requireContext } from '../context'
+import { ALERT_DIALOG_CONTEXT, useAlertDialogContext, requireContext } from '../context'
 
-export function content(_Alpine: AlpineGlobal): DirectiveCallback {
+export function content(Alpine: AlpineGlobal): DirectiveCallback {
   return (el, _directive, { effect, cleanup }) => {
     const ctx = useAlertDialogContext(el)
     if (!requireContext(ctx, 'x-alert-dialog-content')) return
 
-    el.id = ctx.ids.content
-    setAttribute(el, 'role', 'alertdialog')
-    setAttribute(el, 'aria-modal', 'true')
-    setAttribute(el, 'tabindex', '-1')
-    setAttribute(el, 'aria-labelledby', ctx.ids.title)
-    setAttribute(el, 'aria-describedby', ctx.ids.description)
-    const presence = createPresence(el, { initial: ctx.open })
-    const portal = createLazyPortal(el)
+    const mounted = mountTemplate(Alpine, el, {
+      contextKey: ALERT_DIALOG_CONTEXT,
+      context: ctx,
+    })
+    if (!mounted) return
+    const { root, portal } = mounted
 
-    const trap = createFocusTrap(el)
-    const layer = createDismissableLayer(el, {
+    root.id = ctx.ids.content
+    setAttribute(root, 'role', 'alertdialog')
+    setAttribute(root, 'aria-modal', 'true')
+    setAttribute(root, 'tabindex', '-1')
+    setAttribute(root, 'aria-labelledby', ctx.ids.title)
+    setAttribute(root, 'aria-describedby', ctx.ids.description)
+    const presence = createPresence(root, { initial: ctx.open })
+
+    const trap = createFocusTrap(root)
+    const layer = createDismissableLayer(root, {
       onDismiss: () => ctx.setOpen(false),
       onPointerDownOutside: (event) => event.preventDefault(),
     })
@@ -61,7 +67,7 @@ export function content(_Alpine: AlpineGlobal): DirectiveCallback {
       unlockScroll()
       layer.deactivate()
       trap.deactivate()
-      portal.unmount()
+      mounted.destroy()
     })
   }
 }

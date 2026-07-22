@@ -15,6 +15,21 @@ export interface AlpineGlobal {
   evaluate<T = unknown>(el: HTMLElement, expression: string, extras?: Record<string, unknown>): T
   plugin(callback: Plugin | Plugin[]): void
   store(name: string, value?: unknown): unknown
+  /** Initialize Alpine directives on `el` and its subtree. */
+  initTree(el: HTMLElement): void
+  /** Tear down Alpine effects/cleanups on `el` and its subtree. */
+  destroyTree(el: HTMLElement): void
+  /**
+   * Run a DOM mutation with Alpine's MutationObserver disconnected, so the
+   * mutation does not trigger auto init/destroy. Required when portalling an
+   * already-initialized subtree.
+   */
+  mutateDom<T>(callback: () => T): T
+  /**
+   * Copy the reactive data scope from `referenceNode`'s location onto `node`,
+   * so cloned/teleported content keeps access to its authoring scope.
+   */
+  addScopeToNode(node: HTMLElement, data: object, referenceNode?: HTMLElement): () => void
 }
 
 export interface DirectiveController {

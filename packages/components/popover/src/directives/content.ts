@@ -1,7 +1,7 @@
 import {
   setAttribute,
   createPresence,
-  createLazyPortal,
+  mountTemplate,
   computePosition,
   applyPosition,
   autoUpdate,
@@ -15,24 +15,30 @@ import {
   type AlpineGlobal,
   type DirectiveCallback,
 } from '@alpine-primitives/core'
-import { usePopoverContext, requireContext } from '../context'
+import { POPOVER_CONTEXT, usePopoverContext, requireContext } from '../context'
 
 const ARROW_PADDING = 8
 
-export function content(_Alpine: AlpineGlobal): DirectiveCallback {
+export function content(Alpine: AlpineGlobal): DirectiveCallback {
   return (el, _directive, { effect, cleanup }) => {
     const ctx = usePopoverContext(el)
     if (!requireContext(ctx, 'x-popover-content')) return
 
-    el.id = ctx.ids.content
-    setAttribute(el, 'role', 'dialog')
-    setAttribute(el, 'tabindex', '-1')
-    if (ctx.modal) setAttribute(el, 'aria-modal', 'true')
-    const presence = createPresence(el, { initial: ctx.open })
-    const portal = createLazyPortal(el)
+    const mounted = mountTemplate(Alpine, el, {
+      contextKey: POPOVER_CONTEXT,
+      context: ctx,
+    })
+    if (!mounted) return
+    const { root, portal } = mounted
 
-    const trap = createFocusTrap(el)
-    const layer = createDismissableLayer(el, {
+    root.id = ctx.ids.content
+    setAttribute(root, 'role', 'dialog')
+    setAttribute(root, 'tabindex', '-1')
+    if (ctx.modal) setAttribute(root, 'aria-modal', 'true')
+    const presence = createPresence(root, { initial: ctx.open })
+
+    const trap = createFocusTrap(root)
+    const layer = createDismissableLayer(root, {
       onDismiss: () => ctx.setOpen(false),
     })
 
@@ -43,7 +49,7 @@ export function content(_Alpine: AlpineGlobal): DirectiveCallback {
     function positionArrow(anchorEl: HTMLElement, side: Side): void {
       const arrow = ctx!.arrowEl
       if (!arrow) return
-      const content = el.getBoundingClientRect()
+      const content = root.getBoundingClientRect()
       const anchor = anchorEl.getBoundingClientRect()
       const aw = arrow.offsetWidth
       const ah = arrow.offsetHeight
@@ -64,28 +70,28 @@ export function content(_Alpine: AlpineGlobal): DirectiveCallback {
     function update(): void {
       const anchorEl = ctx!.anchorEl ?? ctx!.triggerEl
       if (!anchorEl) return
-      const result = computePosition(anchorEl, el, {
+      const result = computePosition(anchorEl, root, {
         placement: ctx!.placement,
         offset: ctx!.offset,
       })
-      applyPosition(el, result)
+      applyPosition(root, result)
       positionArrow(anchorEl, result.side)
     }
 
     function open(): void {
       presence.show()
       requestAnimationFrame(() => {
-        stopAutoUpdate = autoUpdate(ctx!.anchorEl ?? ctx!.triggerEl ?? el, el, update)
+        stopAutoUpdate = autoUpdate(ctx!.anchorEl ?? ctx!.triggerEl ?? root, root, update)
         layer.activate()
         if (ctx!.modal) {
           unlockScroll = lockBodyScroll()
           trap.activate()
         } else {
-          const focusable = getFocusableElements(el)
-          ;(focusable[0] ?? el).focus()
-          removeFocusOut = addListener(el, 'focusout', (event) => {
+          const focusable = getFocusableElements(root)
+          ;(focusable[0] ?? root).focus()
+          removeFocusOut = addListener(root, 'focusout', (event) => {
             const next = (event as FocusEvent).relatedTarget as Node | null
-            if (next && (el.contains(next) || ctx!.triggerEl?.contains(next))) return
+            if (next && (root.contains(next) || ctx!.triggerEl?.contains(next))) return
             ctx!.setOpen(false)
           })
         }
@@ -102,7 +108,7 @@ export function content(_Alpine: AlpineGlobal): DirectiveCallback {
       removeFocusOut = noop
       if (ctx!.modal) trap.deactivate()
       const active = document.activeElement
-      if (active && el.contains(active)) ctx!.triggerEl?.focus()
+      if (active && root.contains(active)) ctx!.triggerEl?.focus()
       presence.hide()
     }
 
@@ -117,7 +123,7 @@ export function content(_Alpine: AlpineGlobal): DirectiveCallback {
 
     cleanup(() => {
       close()
-      portal.unmount()
+      mounted.destroy()
     })
   }
 }
