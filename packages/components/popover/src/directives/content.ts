@@ -1,7 +1,7 @@
 import {
   setAttribute,
   createPresence,
-  portalToBody,
+  createLazyPortal,
   computePosition,
   applyPosition,
   autoUpdate,
@@ -19,7 +19,7 @@ import { usePopoverContext, requireContext } from '../context'
 
 const ARROW_PADDING = 8
 
-export function content(Alpine: AlpineGlobal): DirectiveCallback {
+export function content(_Alpine: AlpineGlobal): DirectiveCallback {
   return (el, _directive, { effect, cleanup }) => {
     const ctx = usePopoverContext(el)
     if (!requireContext(ctx, 'x-popover-content')) return
@@ -29,11 +29,7 @@ export function content(Alpine: AlpineGlobal): DirectiveCallback {
     setAttribute(el, 'tabindex', '-1')
     if (ctx.modal) setAttribute(el, 'aria-modal', 'true')
     const presence = createPresence(el, { initial: ctx.open })
-
-    let undoPortal = noop
-    Alpine.nextTick(() => {
-      undoPortal = portalToBody(el)
-    })
+    const portal = createLazyPortal(el)
 
     const trap = createFocusTrap(el)
     const layer = createDismissableLayer(el, {
@@ -113,6 +109,7 @@ export function content(Alpine: AlpineGlobal): DirectiveCallback {
     let wasOpen = ctx.open
     effect(() => {
       const isOpen = ctx.open
+      if (isOpen) portal.mount()
       if (isOpen && !wasOpen) open()
       else if (!isOpen && wasOpen) close()
       wasOpen = isOpen
@@ -120,7 +117,7 @@ export function content(Alpine: AlpineGlobal): DirectiveCallback {
 
     cleanup(() => {
       close()
-      undoPortal()
+      portal.unmount()
     })
   }
 }

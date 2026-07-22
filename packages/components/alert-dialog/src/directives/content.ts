@@ -1,7 +1,7 @@
 import {
   setAttribute,
   createPresence,
-  portalToBody,
+  createLazyPortal,
   createFocusTrap,
   createDismissableLayer,
   lockBodyScroll,
@@ -11,7 +11,7 @@ import {
 } from '@alpine-primitives/core'
 import { useAlertDialogContext, requireContext } from '../context'
 
-export function content(Alpine: AlpineGlobal): DirectiveCallback {
+export function content(_Alpine: AlpineGlobal): DirectiveCallback {
   return (el, _directive, { effect, cleanup }) => {
     const ctx = useAlertDialogContext(el)
     if (!requireContext(ctx, 'x-alert-dialog-content')) return
@@ -23,11 +23,7 @@ export function content(Alpine: AlpineGlobal): DirectiveCallback {
     setAttribute(el, 'aria-labelledby', ctx.ids.title)
     setAttribute(el, 'aria-describedby', ctx.ids.description)
     const presence = createPresence(el, { initial: ctx.open })
-
-    let undoPortal = noop
-    Alpine.nextTick(() => {
-      undoPortal = portalToBody(el)
-    })
+    const portal = createLazyPortal(el)
 
     const trap = createFocusTrap(el)
     const layer = createDismissableLayer(el, {
@@ -40,6 +36,7 @@ export function content(Alpine: AlpineGlobal): DirectiveCallback {
 
     effect(() => {
       const open = ctx.open
+      if (open) portal.mount()
       if (open) presence.show()
       else presence.hide()
 
@@ -64,7 +61,7 @@ export function content(Alpine: AlpineGlobal): DirectiveCallback {
       unlockScroll()
       layer.deactivate()
       trap.deactivate()
-      undoPortal()
+      portal.unmount()
     })
   }
 }

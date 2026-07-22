@@ -1,9 +1,8 @@
 import {
   setAttribute,
   createPresence,
-  portalToBody,
+  createLazyPortal,
   addListener,
-  noop,
   type AlpineGlobal,
   type DirectiveCallback,
 } from '@alpine-primitives/core'
@@ -25,23 +24,25 @@ export function trigger(_Alpine: AlpineGlobal): DirectiveCallback {
   }
 }
 
-export function overlay(Alpine: AlpineGlobal): DirectiveCallback {
+export function overlay(_Alpine: AlpineGlobal): DirectiveCallback {
   return (el, _directive, { effect, cleanup }) => {
     const ctx = useDrawerContext(el)
     if (!requireContext(ctx, 'x-drawer-overlay')) return
     el.setAttribute('data-drawer-overlay', '')
     const presence = createPresence(el, { initial: ctx.open })
-    let undoPortal = noop
-    Alpine.nextTick(() => {
-      undoPortal = portalToBody(el)
+    const portal = createLazyPortal(el)
+    effect(() => {
+      if (ctx.open) {
+        portal.mount()
+        presence.show()
+      } else presence.hide()
     })
-    effect(() => (ctx.open ? presence.show() : presence.hide()))
     cleanup(
       addListener(el, 'click', () => {
         if (ctx.modal) ctx.setOpen(false)
       }),
     )
-    cleanup(() => undoPortal())
+    cleanup(() => portal.unmount())
   }
 }
 

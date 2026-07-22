@@ -1,8 +1,3 @@
-/**
- * Move `el` to `document.body`, leaving a placeholder comment where it was.
- * The returned fn restores `el` to its original position. Useful for overlays
- * that must escape `overflow:hidden`/`transform` ancestors and stacking context.
- */
 export function portalToBody(el: HTMLElement, target: HTMLElement = document.body): () => void {
   const placeholder = document.createComment('alpine-primitives-portal')
   el.parentNode?.insertBefore(placeholder, el)
@@ -15,5 +10,27 @@ export function portalToBody(el: HTMLElement, target: HTMLElement = document.bod
     } else {
       el.remove()
     }
+  }
+}
+
+export interface LazyPortal {
+  mount(): void
+  unmount(): void
+}
+
+export function createLazyPortal(el: HTMLElement, target?: HTMLElement): LazyPortal {
+  let undo: () => void = () => {}
+  let mounted = false
+  return {
+    mount() {
+      if (mounted) return
+      mounted = true
+      undo = target ? portalToBody(el, target) : portalToBody(el)
+    },
+    unmount() {
+      undo()
+      undo = () => {}
+      mounted = false
+    },
   }
 }

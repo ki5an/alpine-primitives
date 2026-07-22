@@ -1,7 +1,7 @@
 import {
   setAttribute,
   createPresence,
-  portalToBody,
+  createLazyPortal,
   computePosition,
   applyPosition,
   autoUpdate,
@@ -16,7 +16,7 @@ import { useTooltipContext, requireContext, claimActive, releaseActive } from '.
 
 const ARROW_PADDING = 8
 
-export function content(Alpine: AlpineGlobal): DirectiveCallback {
+export function content(_Alpine: AlpineGlobal): DirectiveCallback {
   return (el, _directive, { effect, cleanup }) => {
     const ctx = useTooltipContext(el)
     if (!requireContext(ctx, 'x-tooltip-content')) return
@@ -25,11 +25,7 @@ export function content(Alpine: AlpineGlobal): DirectiveCallback {
     setAttribute(el, 'role', 'tooltip')
     el.style.pointerEvents = 'none'
     const presence = createPresence(el, { initial: ctx.open })
-
-    let undoPortal = noop
-    Alpine.nextTick(() => {
-      undoPortal = portalToBody(el)
-    })
+    const portal = createLazyPortal(el)
 
     let stopAutoUpdate = noop
     let removeEscape = noop
@@ -87,6 +83,7 @@ export function content(Alpine: AlpineGlobal): DirectiveCallback {
     let wasOpen = ctx.open
     effect(() => {
       const isOpen = ctx.open
+      if (isOpen) portal.mount()
       if (isOpen && !wasOpen) doOpen()
       else if (!isOpen && wasOpen) doClose()
       wasOpen = isOpen
@@ -94,7 +91,7 @@ export function content(Alpine: AlpineGlobal): DirectiveCallback {
 
     cleanup(() => {
       doClose()
-      undoPortal()
+      portal.unmount()
     })
   }
 }

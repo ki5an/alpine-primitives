@@ -1,7 +1,7 @@
 import {
   setAttribute,
   createPresence,
-  portalToBody,
+  createLazyPortal,
   createFocusTrap,
   lockBodyScroll,
   onKey,
@@ -13,7 +13,7 @@ import {
 import { useDialogContext } from '../context'
 import { requireContext } from '../utils'
 
-export function content(Alpine: AlpineGlobal): DirectiveCallback {
+export function content(_Alpine: AlpineGlobal): DirectiveCallback {
   return (el, _directive, { effect, cleanup }) => {
     const ctx = useDialogContext(el)
     if (!requireContext(ctx, 'x-dialog-content')) return
@@ -27,13 +27,9 @@ export function content(Alpine: AlpineGlobal): DirectiveCallback {
     const presence = createPresence(el, { initial: ctx.open })
 
     const trap = createFocusTrap(el)
-    let undoPortal = noop
+    const portal = createLazyPortal(el)
     let unlockScroll = noop
     let removeEscape = noop
-
-    Alpine.nextTick(() => {
-      undoPortal = portalToBody(el)
-    })
 
     effect(() => {
       setAttribute(el, 'aria-modal', ctx.modal ? 'true' : null)
@@ -47,6 +43,7 @@ export function content(Alpine: AlpineGlobal): DirectiveCallback {
     let wasOpen = ctx.open
     effect(() => {
       const open = ctx.open
+      if (open) portal.mount()
       if (open) presence.show()
       else presence.hide()
 
@@ -72,7 +69,7 @@ export function content(Alpine: AlpineGlobal): DirectiveCallback {
       unlockScroll()
       removeEscape()
       trap.deactivate()
-      undoPortal()
+      portal.unmount()
     })
   }
 }

@@ -1,7 +1,7 @@
 import {
   setAttribute,
   createPresence,
-  portalToBody,
+  createLazyPortal,
   createFocusTrap,
   createDismissableLayer,
   lockBodyScroll,
@@ -11,7 +11,7 @@ import {
 } from '@alpine-primitives/core'
 import { useDrawerContext, requireContext } from '../context'
 
-export function content(Alpine: AlpineGlobal): DirectiveCallback {
+export function content(_Alpine: AlpineGlobal): DirectiveCallback {
   return (el, _directive, { effect, cleanup }) => {
     const ctx = useDrawerContext(el)
     if (!requireContext(ctx, 'x-drawer-content')) return
@@ -25,11 +25,7 @@ export function content(Alpine: AlpineGlobal): DirectiveCallback {
     setAttribute(el, 'data-side', ctx.side)
     if (ctx.modal) setAttribute(el, 'aria-modal', 'true')
     const presence = createPresence(el, { initial: ctx.open })
-
-    let undoPortal = noop
-    Alpine.nextTick(() => {
-      undoPortal = portalToBody(el)
-    })
+    const portal = createLazyPortal(el)
 
     const trap = createFocusTrap(el)
     const layer = createDismissableLayer(el, {
@@ -41,6 +37,7 @@ export function content(Alpine: AlpineGlobal): DirectiveCallback {
 
     effect(() => {
       const open = ctx.open
+      if (open) portal.mount()
       if (open) presence.show()
       else presence.hide()
 
@@ -64,7 +61,7 @@ export function content(Alpine: AlpineGlobal): DirectiveCallback {
       layer.deactivate()
       unlockScroll()
       trap.deactivate()
-      undoPortal()
+      portal.unmount()
     })
   }
 }

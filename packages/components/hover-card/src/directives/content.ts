@@ -1,6 +1,6 @@
 import {
   createPresence,
-  portalToBody,
+  createLazyPortal,
   computePosition,
   applyPosition,
   autoUpdate,
@@ -16,18 +16,14 @@ import { useHoverCardContext, requireContext } from '../context'
 
 const ARROW_PADDING = 8
 
-export function content(Alpine: AlpineGlobal): DirectiveCallback {
+export function content(_Alpine: AlpineGlobal): DirectiveCallback {
   return (el, _directive, { effect, cleanup }) => {
     const ctx = useHoverCardContext(el)
     if (!requireContext(ctx, 'x-hover-card-content')) return
 
     el.id = ctx.ids.content
     const presence = createPresence(el, { initial: ctx.open })
-
-    let undoPortal = noop
-    Alpine.nextTick(() => {
-      undoPortal = portalToBody(el)
-    })
+    const portal = createLazyPortal(el)
 
     let stopAutoUpdate = noop
     let removeEscape = noop
@@ -84,6 +80,7 @@ export function content(Alpine: AlpineGlobal): DirectiveCallback {
     let wasOpen = ctx.open
     effect(() => {
       const isOpen = ctx.open
+      if (isOpen) portal.mount()
       if (isOpen && !wasOpen) doOpen()
       else if (!isOpen && wasOpen) doClose()
       wasOpen = isOpen
@@ -93,7 +90,7 @@ export function content(Alpine: AlpineGlobal): DirectiveCallback {
       stopEnter()
       stopLeave()
       doClose()
-      undoPortal()
+      portal.unmount()
     })
   }
 }
