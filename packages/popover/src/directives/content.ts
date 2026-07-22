@@ -1,6 +1,6 @@
 import {
   setAttribute,
-  applyPresence,
+  createPresence,
   portalToBody,
   computePosition,
   applyPosition,
@@ -19,11 +19,6 @@ import { usePopoverContext, requireContext } from '../context'
 
 const ARROW_PADDING = 8
 
-/**
- * `x-popover-content` — the floating panel. Portals to `<body>`, positions with
- * the Floating engine (+ optional arrow), dismisses on outside press / Escape,
- * and manages focus. Set `.modal` on the root for scroll-lock + focus-trap.
- */
 export function content(Alpine: AlpineGlobal): DirectiveCallback {
   return (el, _directive, { effect, cleanup }) => {
     const ctx = usePopoverContext(el)
@@ -33,7 +28,7 @@ export function content(Alpine: AlpineGlobal): DirectiveCallback {
     setAttribute(el, 'role', 'dialog')
     setAttribute(el, 'tabindex', '-1')
     if (ctx.modal) setAttribute(el, 'aria-modal', 'true')
-    applyPresence(el, ctx.open)
+    const presence = createPresence(el, { initial: ctx.open })
 
     let undoPortal = noop
     Alpine.nextTick(() => {
@@ -82,7 +77,7 @@ export function content(Alpine: AlpineGlobal): DirectiveCallback {
     }
 
     function open(): void {
-      applyPresence(el, true)
+      presence.show()
       requestAnimationFrame(() => {
         stopAutoUpdate = autoUpdate(ctx!.anchorEl ?? ctx!.triggerEl ?? el, el, update)
         layer.activate()
@@ -112,7 +107,7 @@ export function content(Alpine: AlpineGlobal): DirectiveCallback {
       if (ctx!.modal) trap.deactivate()
       const active = document.activeElement
       if (active && el.contains(active)) ctx!.triggerEl?.focus()
-      applyPresence(el, false)
+      presence.hide()
     }
 
     let wasOpen = ctx.open

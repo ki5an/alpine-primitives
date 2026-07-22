@@ -1,6 +1,6 @@
 import {
   setAttribute,
-  applyPresence,
+  createPresence,
   portalToBody,
   computePosition,
   applyPosition,
@@ -16,7 +16,6 @@ import { useTooltipContext, requireContext, claimActive, releaseActive } from '.
 
 const ARROW_PADDING = 8
 
-/** `x-tooltip-content` — the `role="tooltip"` bubble. Portalled and floated. */
 export function content(Alpine: AlpineGlobal): DirectiveCallback {
   return (el, _directive, { effect, cleanup }) => {
     const ctx = useTooltipContext(el)
@@ -24,9 +23,8 @@ export function content(Alpine: AlpineGlobal): DirectiveCallback {
 
     el.id = ctx.ids.content
     setAttribute(el, 'role', 'tooltip')
-    // Tooltips are not interactive; keep them out of the pointer path.
     el.style.pointerEvents = 'none'
-    applyPresence(el, ctx.open)
+    const presence = createPresence(el, { initial: ctx.open })
 
     let undoPortal = noop
     Alpine.nextTick(() => {
@@ -70,7 +68,7 @@ export function content(Alpine: AlpineGlobal): DirectiveCallback {
 
     function doOpen(): void {
       claimActive(close)
-      applyPresence(el, true)
+      presence.show()
       requestAnimationFrame(() => {
         stopAutoUpdate = autoUpdate(ctx!.triggerEl ?? el, el, update)
         removeEscape = onKey(document, Keys.Escape, close)
@@ -83,7 +81,7 @@ export function content(Alpine: AlpineGlobal): DirectiveCallback {
       stopAutoUpdate = noop
       removeEscape()
       removeEscape = noop
-      applyPresence(el, false)
+      presence.hide()
     }
 
     let wasOpen = ctx.open

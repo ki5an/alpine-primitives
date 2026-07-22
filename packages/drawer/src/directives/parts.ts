@@ -1,6 +1,6 @@
 import {
   setAttribute,
-  applyPresence,
+  createPresence,
   portalToBody,
   addListener,
   noop,
@@ -9,7 +9,6 @@ import {
 } from '@alpine-primitives/core'
 import { useDrawerContext, requireContext } from '../context'
 
-/** `x-drawer-trigger` — toggles the drawer. */
 export function trigger(_Alpine: AlpineGlobal): DirectiveCallback {
   return (el, _directive, { effect, cleanup }) => {
     const ctx = useDrawerContext(el)
@@ -26,18 +25,17 @@ export function trigger(_Alpine: AlpineGlobal): DirectiveCallback {
   }
 }
 
-/** `x-drawer-overlay` — backdrop; clicking it dismisses a modal drawer. */
 export function overlay(Alpine: AlpineGlobal): DirectiveCallback {
   return (el, _directive, { effect, cleanup }) => {
     const ctx = useDrawerContext(el)
     if (!requireContext(ctx, 'x-drawer-overlay')) return
     el.setAttribute('data-drawer-overlay', '')
-    applyPresence(el, ctx.open)
+    const presence = createPresence(el, { initial: ctx.open })
     let undoPortal = noop
     Alpine.nextTick(() => {
       undoPortal = portalToBody(el)
     })
-    effect(() => applyPresence(el, ctx.open))
+    effect(() => (ctx.open ? presence.show() : presence.hide()))
     cleanup(
       addListener(el, 'click', () => {
         if (ctx.modal) ctx.setOpen(false)
@@ -47,7 +45,6 @@ export function overlay(Alpine: AlpineGlobal): DirectiveCallback {
   }
 }
 
-/** `x-drawer-close` — closes the drawer. */
 export function close(_Alpine: AlpineGlobal): DirectiveCallback {
   return (el, _directive, { cleanup }) => {
     const ctx = useDrawerContext(el)
@@ -56,7 +53,6 @@ export function close(_Alpine: AlpineGlobal): DirectiveCallback {
   }
 }
 
-/** `x-drawer-title` — accessible name (`aria-labelledby`). */
 export function title(_Alpine: AlpineGlobal): DirectiveCallback {
   return (el) => {
     const ctx = useDrawerContext(el)
@@ -65,7 +61,6 @@ export function title(_Alpine: AlpineGlobal): DirectiveCallback {
   }
 }
 
-/** `x-drawer-description` — accessible description (`aria-describedby`). */
 export function description(_Alpine: AlpineGlobal): DirectiveCallback {
   return (el) => {
     const ctx = useDrawerContext(el)

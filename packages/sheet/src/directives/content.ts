@@ -1,6 +1,6 @@
 import {
   setAttribute,
-  applyPresence,
+  createPresence,
   portalToBody,
   createFocusTrap,
   createDismissableLayer,
@@ -11,11 +11,6 @@ import {
 } from '@alpine-primitives/core'
 import { useSheetContext, requireContext } from '../context'
 
-/**
- * `x-sheet-content` — the edge panel. Portalled, focus trapped and scroll
- * locked when modal, dismissed on Escape / outside press. `data-side` mirrors
- * the chosen edge for slide-in CSS.
- */
 export function content(Alpine: AlpineGlobal): DirectiveCallback {
   return (el, _directive, { effect, cleanup }) => {
     const ctx = useSheetContext(el)
@@ -28,7 +23,7 @@ export function content(Alpine: AlpineGlobal): DirectiveCallback {
     setAttribute(el, 'aria-describedby', ctx.ids.description)
     setAttribute(el, 'data-side', ctx.side)
     if (ctx.modal) setAttribute(el, 'aria-modal', 'true')
-    applyPresence(el, ctx.open)
+    const presence = createPresence(el, { initial: ctx.open })
 
     let undoPortal = noop
     Alpine.nextTick(() => {
@@ -45,7 +40,8 @@ export function content(Alpine: AlpineGlobal): DirectiveCallback {
 
     effect(() => {
       const open = ctx.open
-      applyPresence(el, open)
+      if (open) presence.show()
+      else presence.hide()
 
       if (open && !wasOpen) {
         layer.activate()

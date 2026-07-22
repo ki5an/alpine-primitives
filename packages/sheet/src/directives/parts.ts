@@ -1,6 +1,6 @@
 import {
   setAttribute,
-  applyPresence,
+  createPresence,
   portalToBody,
   addListener,
   noop,
@@ -9,7 +9,6 @@ import {
 } from '@alpine-primitives/core'
 import { useSheetContext, requireContext } from '../context'
 
-/** `x-sheet-trigger` — toggles the sheet. */
 export function trigger(_Alpine: AlpineGlobal): DirectiveCallback {
   return (el, _directive, { effect, cleanup }) => {
     const ctx = useSheetContext(el)
@@ -26,18 +25,17 @@ export function trigger(_Alpine: AlpineGlobal): DirectiveCallback {
   }
 }
 
-/** `x-sheet-overlay` — backdrop; clicking it dismisses a modal sheet. */
 export function overlay(Alpine: AlpineGlobal): DirectiveCallback {
   return (el, _directive, { effect, cleanup }) => {
     const ctx = useSheetContext(el)
     if (!requireContext(ctx, 'x-sheet-overlay')) return
     el.setAttribute('data-sheet-overlay', '')
-    applyPresence(el, ctx.open)
+    const presence = createPresence(el, { initial: ctx.open })
     let undoPortal = noop
     Alpine.nextTick(() => {
       undoPortal = portalToBody(el)
     })
-    effect(() => applyPresence(el, ctx.open))
+    effect(() => (ctx.open ? presence.show() : presence.hide()))
     cleanup(
       addListener(el, 'click', () => {
         if (ctx.modal) ctx.setOpen(false)
@@ -47,7 +45,6 @@ export function overlay(Alpine: AlpineGlobal): DirectiveCallback {
   }
 }
 
-/** `x-sheet-close` — closes the sheet. */
 export function close(_Alpine: AlpineGlobal): DirectiveCallback {
   return (el, _directive, { cleanup }) => {
     const ctx = useSheetContext(el)
@@ -56,7 +53,6 @@ export function close(_Alpine: AlpineGlobal): DirectiveCallback {
   }
 }
 
-/** `x-sheet-title` — accessible name (`aria-labelledby`). */
 export function title(_Alpine: AlpineGlobal): DirectiveCallback {
   return (el) => {
     const ctx = useSheetContext(el)
@@ -65,7 +61,6 @@ export function title(_Alpine: AlpineGlobal): DirectiveCallback {
   }
 }
 
-/** `x-sheet-description` — accessible description (`aria-describedby`). */
 export function description(_Alpine: AlpineGlobal): DirectiveCallback {
   return (el) => {
     const ctx = useSheetContext(el)

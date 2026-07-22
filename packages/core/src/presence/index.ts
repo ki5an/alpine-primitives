@@ -1,12 +1,5 @@
 export type PresenceState = 'open' | 'closed'
 
-/**
- * Reflect open/closed state onto an element for both behavior and styling.
- * Sets `data-state` (targetable in CSS for enter/leave transitions) and toggles
- * visibility via inline `display`. When hidden, the previous inline display is
- * restored on show so author-set `display` values survive. Instant — no wait
- * for transitions. For leave animations, use `createPresence`.
- */
 export function applyPresence(el: HTMLElement, open: boolean): void {
   el.setAttribute('data-state', open ? 'open' : 'closed')
 
@@ -28,18 +21,18 @@ export interface PresenceController {
   isPresent(): boolean
 }
 
-/**
- * Presence with exit awareness: on `hide()`, sets `data-state="closed"` and
- * keeps the element mounted until its CSS transition/animation finishes, then
- * sets `display:none` and calls `onExited`. `show()` cancels a pending hide.
- */
 export function createPresence(
   el: HTMLElement,
-  options: { onExited?: () => void } = {},
+  options: { initial?: boolean; onExited?: () => void } = {},
 ): PresenceController {
-  const originalDisplay = el.style.display === 'none' ? '' : el.style.display
-  let present = el.style.display !== 'none'
+  const inline = el.style.display
+  const originalDisplay = inline && inline !== 'none' ? inline : ''
+  const initialOpen = options.initial ?? inline !== 'none'
+  let present = initialOpen
   let token = 0
+
+  el.setAttribute('data-state', initialOpen ? 'open' : 'closed')
+  el.style.display = initialOpen ? originalDisplay : 'none'
 
   function hasMotion(): boolean {
     if (typeof getComputedStyle === 'undefined') return false
@@ -60,11 +53,22 @@ export function createPresence(
   return {
     show() {
       token += 1
+      if (present && el.getAttribute('data-state') === 'open') {
+        el.style.display = originalDisplay
+        return
+      }
       present = true
       el.style.display = originalDisplay
+      el.getBoundingClientRect()
       el.setAttribute('data-state', 'open')
     },
     hide() {
+      if (!present) {
+        token += 1
+        el.setAttribute('data-state', 'closed')
+        el.style.display = 'none'
+        return
+      }
       const myToken = (token += 1)
       el.setAttribute('data-state', 'closed')
       requestAnimationFrame(() => {

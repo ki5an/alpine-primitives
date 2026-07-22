@@ -1,6 +1,6 @@
 import {
   setAttribute,
-  applyPresence,
+  createPresence,
   portalToBody,
   addListener,
   noop,
@@ -9,7 +9,6 @@ import {
 } from '@alpine-primitives/core'
 import { useAlertDialogContext, requireContext } from '../context'
 
-/** `x-alert-dialog-trigger` — opens the alert dialog. */
 export function trigger(_Alpine: AlpineGlobal): DirectiveCallback {
   return (el, _directive, { effect, cleanup }) => {
     const ctx = useAlertDialogContext(el)
@@ -26,23 +25,21 @@ export function trigger(_Alpine: AlpineGlobal): DirectiveCallback {
   }
 }
 
-/** `x-alert-dialog-overlay` — backdrop. Portalled; not click-dismissable. */
 export function overlay(Alpine: AlpineGlobal): DirectiveCallback {
   return (el, _directive, { effect, cleanup }) => {
     const ctx = useAlertDialogContext(el)
     if (!requireContext(ctx, 'x-alert-dialog-overlay')) return
     el.setAttribute('data-alert-dialog-overlay', '')
-    applyPresence(el, ctx.open)
+    const presence = createPresence(el, { initial: ctx.open })
     let undoPortal = noop
     Alpine.nextTick(() => {
       undoPortal = portalToBody(el)
     })
-    effect(() => applyPresence(el, ctx.open))
+    effect(() => (ctx.open ? presence.show() : presence.hide()))
     cleanup(() => undoPortal())
   }
 }
 
-/** `x-alert-dialog-title` — accessible name (`aria-labelledby`). */
 export function title(_Alpine: AlpineGlobal): DirectiveCallback {
   return (el) => {
     const ctx = useAlertDialogContext(el)
@@ -51,7 +48,6 @@ export function title(_Alpine: AlpineGlobal): DirectiveCallback {
   }
 }
 
-/** `x-alert-dialog-description` — accessible description (`aria-describedby`). */
 export function description(_Alpine: AlpineGlobal): DirectiveCallback {
   return (el) => {
     const ctx = useAlertDialogContext(el)
@@ -60,7 +56,6 @@ export function description(_Alpine: AlpineGlobal): DirectiveCallback {
   }
 }
 
-/** `x-alert-dialog-action` — confirms and closes. Add your logic via `@click`. */
 export function action(_Alpine: AlpineGlobal): DirectiveCallback {
   return (el, _directive, { cleanup }) => {
     const ctx = useAlertDialogContext(el)
@@ -70,7 +65,6 @@ export function action(_Alpine: AlpineGlobal): DirectiveCallback {
   }
 }
 
-/** `x-alert-dialog-cancel` — dismisses; receives initial focus. */
 export function cancel(_Alpine: AlpineGlobal): DirectiveCallback {
   return (el, _directive, { cleanup }) => {
     const ctx = useAlertDialogContext(el)

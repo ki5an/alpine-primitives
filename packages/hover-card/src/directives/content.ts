@@ -1,5 +1,5 @@
 import {
-  applyPresence,
+  createPresence,
   portalToBody,
   computePosition,
   applyPosition,
@@ -16,17 +16,13 @@ import { useHoverCardContext, requireContext } from '../context'
 
 const ARROW_PADDING = 8
 
-/**
- * `x-hover-card-content` — the floating card. Interactive: hovering it cancels
- * the close timer so users can move into and click within it.
- */
 export function content(Alpine: AlpineGlobal): DirectiveCallback {
   return (el, _directive, { effect, cleanup }) => {
     const ctx = useHoverCardContext(el)
     if (!requireContext(ctx, 'x-hover-card-content')) return
 
     el.id = ctx.ids.content
-    applyPresence(el, ctx.open)
+    const presence = createPresence(el, { initial: ctx.open })
 
     let undoPortal = noop
     Alpine.nextTick(() => {
@@ -70,7 +66,7 @@ export function content(Alpine: AlpineGlobal): DirectiveCallback {
     }
 
     function doOpen(): void {
-      applyPresence(el, true)
+      presence.show()
       requestAnimationFrame(() => {
         stopAutoUpdate = autoUpdate(ctx!.triggerEl ?? el, el, update)
         removeEscape = onKey(document, Keys.Escape, () => ctx!.setOpen(false))
@@ -82,7 +78,7 @@ export function content(Alpine: AlpineGlobal): DirectiveCallback {
       stopAutoUpdate = noop
       removeEscape()
       removeEscape = noop
-      applyPresence(el, false)
+      presence.hide()
     }
 
     let wasOpen = ctx.open
