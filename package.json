@@ -1,0 +1,23 @@
+{
+  "name": "alpine-primitives-monorepo",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Headless, accessible UI primitives for Alpine.js",
+  "type": "module",
+  "packageManager": "pnpm@9.15.9",
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "build": "turbo run build",
+    "dev": "turbo run dev",
+    "typecheck": "turbo run typecheck",
+    "clean": "turbo run clean && rm -rf node_modules"
+  },
+  "devDependencies": {
+    "turbo": "^2.3.3",
+    "typescript": "^5.7.2",
+    "tsup": "^8.3.5",
+    "alpinejs": "^3.14.8"
+  }
+}

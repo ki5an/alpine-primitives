@@ -1,0 +1,31 @@
+{
+  "name": "@alpine-primitives/drawer",
+  "version": "0.1.0",
+  "description": "Headless, accessible drawer primitive with drag-to-dismiss for Alpine.js",
+  "type": "module",
+  "license": "MIT",
+  "sideEffects": false,
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    }
+  },
+  "files": ["dist"],
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch",
+    "typecheck": "tsc --noEmit",
+    "clean": "rm -rf dist .turbo"
+  },
+  "dependencies": {
+    "@alpine-primitives/core": "workspace:*"
+  },
+  "peerDependencies": {
+    "alpinejs": "^3.15.0"
+  }
+}

@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Alpine Primitives · Playground</title>
+    <link rel="stylesheet" href="./src/styles.css" />
+  </head>
+  <body>
+    <main>
+      <h1>Dialog</h1>
+
+      <div x-dialog @dialog:open="console.log('opened')" @dialog:close="console.log('closed')">
+        <button class="btn" x-dialog-trigger>Open dialog</button>
+
+        <p class="status">
+          State: <strong x-text="$dialog.open ? 'open' : 'closed'"></strong>
+        </p>
+
+        <div class="overlay" x-dialog-overlay></div>
+
+        <div class="panel" x-dialog-content>
+          <h2 x-dialog-title>Delete project</h2>
+          <p x-dialog-description>
+            This action cannot be undone. This will permanently delete the project.
+          </p>
+
+          <label class="field">
+            Type <strong>DELETE</strong> to confirm
+            <input type="text" placeholder="DELETE" />
+          </label>
+
+          <footer class="actions">
+            <button class="btn ghost" x-dialog-close>Cancel</button>
+            <button class="btn danger" x-dialog-close>Delete</button>
+          </footer>
+        </div>
+      </div>
+    </main>
+
+    <script type="module" src="./src/main.ts"></script>
+  </body>
+</html>

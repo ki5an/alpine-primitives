@@ -1,0 +1,33 @@
+{
+  "name": "@alpine-primitives/core",
+  "version": "0.1.0",
+  "description": "Shared headless infrastructure for Alpine Primitives",
+  "type": "module",
+  "license": "MIT",
+  "sideEffects": false,
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    }
+  },
+  "files": ["dist"],
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch",
+    "typecheck": "tsc --noEmit",
+    "clean": "rm -rf dist .turbo"
+  },
+  "peerDependencies": {
+    "alpinejs": "^3.15.0"
+  },
+  "peerDependenciesMeta": {
+    "alpinejs": {
+      "optional": true
+    }
+  }
+}

@@ -1,0 +1,107 @@
+:root {
+  color-scheme: light dark;
+  font-family: system-ui, sans-serif;
+}
+
+body {
+  margin: 0;
+  min-height: 100dvh;
+  display: grid;
+  place-items: start center;
+  padding: 4rem 1rem;
+  background: #0b0b0f;
+  color: #e7e7ea;
+}
+
+main {
+  width: min(32rem, 100%);
+}
+
+h1 {
+  font-size: 1.5rem;
+}
+
+.btn {
+  font: inherit;
+  padding: 0.55rem 1rem;
+  border-radius: 0.5rem;
+  border: 1px solid #34343c;
+  background: #1a1a22;
+  color: inherit;
+  cursor: pointer;
+}
+.btn:hover {
+  background: #22222c;
+}
+.btn.danger {
+  background: #b91c1c;
+  border-color: #b91c1c;
+  color: #fff;
+}
+.btn.ghost {
+  background: transparent;
+}
+
+.status {
+  opacity: 0.7;
+  font-size: 0.9rem;
+}
+
+/* --- Dialog: the primitive is headless; these styles are yours --- */
+
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: rgb(0 0 0 / 0.6);
+  opacity: 0;
+  transition: opacity 0.15s ease;
+}
+.overlay[data-state='open'] {
+  opacity: 1;
+}
+
+.panel {
+  position: fixed;
+  inset: 50% auto auto 50%;
+  translate: -50% -50%;
+  width: min(28rem, calc(100vw - 2rem));
+  padding: 1.5rem;
+  border-radius: 0.9rem;
+  background: #16161c;
+  border: 1px solid #2c2c34;
+  box-shadow: 0 20px 60px rgb(0 0 0 / 0.5);
+}
+.panel[data-state='closed'] {
+  display: none;
+}
+
+.panel h2 {
+  margin: 0 0 0.25rem;
+}
+.panel p {
+  margin: 0 0 1rem;
+  opacity: 0.8;
+}
+
+.field {
+  display: block;
+  margin-bottom: 1.25rem;
+  font-size: 0.9rem;
+}
+.field input {
+  display: block;
+  margin-top: 0.4rem;
+  width: 100%;
+  box-sizing: border-box;
+  padding: 0.5rem 0.6rem;
+  border-radius: 0.4rem;
+  border: 1px solid #34343c;
+  background: #0e0e13;
+  color: inherit;
+}
+
+.actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.5rem;
+}

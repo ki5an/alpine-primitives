@@ -1,0 +1,18 @@
+{
+  "name": "playground",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@alpine-primitives/dialog": "workspace:*",
+    "alpinejs": "^3.15.0"
+  },
+  "devDependencies": {
+    "vite": "^5.4.11"
+  }
+}
