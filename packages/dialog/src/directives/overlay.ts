@@ -24,6 +24,11 @@ export function overlay(Alpine: AlpineGlobal): DirectiveCallback {
 
     effect(() => (ctx.open ? presence.show() : presence.hide()))
 
+    effect(() => {
+      const z = ctx.zIndex
+      if (z) el.style.zIndex = String(z.overlay)
+    })
+
     const stop = addListener(el, 'click', () => {
       if (ctx.modal) ctx.setOpen(false)
     })

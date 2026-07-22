@@ -2,6 +2,8 @@ import {
   provideContext,
   generateId,
   dispatchEvent,
+  acquireZIndex,
+  type ZIndexTier,
   type AlpineGlobal,
   type DirectiveCallback,
 } from '@alpine-primitives/core'
@@ -9,17 +11,8 @@ import { DIALOG_CONTEXT } from '../context'
 import { DialogEvents } from '../events'
 import type { DialogContext } from '../types'
 
-/**
- * `x-dialog` — the root. Owns open state and shares it with descendant parts.
- *
- * Optional expression sets the initial state:
- *   x-dialog="true"                initially open
- *   x-dialog="{ open: true, modal: false }"
- *
- * Modifier `.non-modal` disables scroll-lock / backdrop dismissal semantics.
- */
 export function root(Alpine: AlpineGlobal): DirectiveCallback {
-  return (el, { expression, modifiers }, { effect, evaluate }) => {
+  return (el, { expression, modifiers }, { effect, evaluate, cleanup }) => {
     const ids = {
       trigger: generateId('dialog-trigger'),
       content: generateId('dialog-content'),
@@ -46,6 +39,7 @@ export function root(Alpine: AlpineGlobal): DirectiveCallback {
       modal,
       ids,
       triggerEl: null,
+      zIndex: null,
       setOpen(value: boolean) {
         context.open = value
       },
@@ -56,6 +50,22 @@ export function root(Alpine: AlpineGlobal): DirectiveCallback {
 
     provideContext(el, DIALOG_CONTEXT, context)
     el.setAttribute('data-dialog-root', '')
+
+    let tier: ZIndexTier | null = null
+    effect(() => {
+      if (context.open && !tier) {
+        tier = acquireZIndex()
+        context.zIndex = { overlay: tier.overlay, content: tier.content }
+      } else if (!context.open && tier) {
+        tier.release()
+        tier = null
+        context.zIndex = null
+      }
+    })
+    cleanup(() => {
+      tier?.release()
+      tier = null
+    })
 
     let first = true
     effect(() => {

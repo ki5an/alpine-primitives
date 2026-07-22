@@ -5,15 +5,12 @@ export interface DialogIds {
   description: string
 }
 
-/**
- * Reactive state shared from the `x-dialog` root to every descendant part.
- * Created via `Alpine.reactive`, so reads inside `effect()` track changes.
- */
 export interface DialogContext {
   open: boolean
   modal: boolean
   ids: DialogIds
   triggerEl: HTMLElement | null
+  zIndex: { overlay: number; content: number } | null
   setOpen(value: boolean): void
   toggle(): void
 }

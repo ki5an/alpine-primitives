@@ -39,6 +39,11 @@ export function content(Alpine: AlpineGlobal): DirectiveCallback {
       setAttribute(el, 'aria-modal', ctx.modal ? 'true' : null)
     })
 
+    effect(() => {
+      const z = ctx.zIndex
+      if (z) el.style.zIndex = String(z.content)
+    })
+
     let wasOpen = ctx.open
     effect(() => {
       const open = ctx.open
