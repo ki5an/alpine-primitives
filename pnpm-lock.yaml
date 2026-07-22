@@ -23,9 +23,27 @@ importers:
 
   apps/playground:
     dependencies:
+      '@alpine-primitives/alert-dialog':
+        specifier: workspace:*
+        version: link:../../packages/components/alert-dialog
       '@alpine-primitives/dialog':
         specifier: workspace:*
-        version: link:../../packages/dialog
+        version: link:../../packages/components/dialog
+      '@alpine-primitives/drawer':
+        specifier: workspace:*
+        version: link:../../packages/components/drawer
+      '@alpine-primitives/hover-card':
+        specifier: workspace:*
+        version: link:../../packages/components/hover-card
+      '@alpine-primitives/popover':
+        specifier: workspace:*
+        version: link:../../packages/components/popover
+      '@alpine-primitives/sheet':
+        specifier: workspace:*
+        version: link:../../packages/components/sheet
+      '@alpine-primitives/tooltip':
+        specifier: workspace:*
+        version: link:../../packages/components/tooltip
       alpinejs:
         specifier: ^3.15.0
         version: 3.15.12
@@ -34,71 +52,71 @@ importers:
         specifier: ^5.4.11
         version: 5.4.21
 
-  packages/alert-dialog:
+  packages/components/alert-dialog:
     dependencies:
       '@alpine-primitives/core':
         specifier: workspace:*
-        version: link:../core
+        version: link:../../core
+      alpinejs:
+        specifier: ^3.15.0
+        version: 3.15.12
+
+  packages/components/dialog:
+    dependencies:
+      '@alpine-primitives/core':
+        specifier: workspace:*
+        version: link:../../core
+      alpinejs:
+        specifier: ^3.15.0
+        version: 3.15.12
+
+  packages/components/drawer:
+    dependencies:
+      '@alpine-primitives/core':
+        specifier: workspace:*
+        version: link:../../core
+      alpinejs:
+        specifier: ^3.15.0
+        version: 3.15.12
+
+  packages/components/hover-card:
+    dependencies:
+      '@alpine-primitives/core':
+        specifier: workspace:*
+        version: link:../../core
+      alpinejs:
+        specifier: ^3.15.0
+        version: 3.15.12
+
+  packages/components/popover:
+    dependencies:
+      '@alpine-primitives/core':
+        specifier: workspace:*
+        version: link:../../core
+      alpinejs:
+        specifier: ^3.15.0
+        version: 3.15.12
+
+  packages/components/sheet:
+    dependencies:
+      '@alpine-primitives/core':
+        specifier: workspace:*
+        version: link:../../core
+      alpinejs:
+        specifier: ^3.15.0
+        version: 3.15.12
+
+  packages/components/tooltip:
+    dependencies:
+      '@alpine-primitives/core':
+        specifier: workspace:*
+        version: link:../../core
       alpinejs:
         specifier: ^3.15.0
         version: 3.15.12
 
   packages/core:
     dependencies:
-      alpinejs:
-        specifier: ^3.15.0
-        version: 3.15.12
-
-  packages/dialog:
-    dependencies:
-      '@alpine-primitives/core':
-        specifier: workspace:*
-        version: link:../core
-      alpinejs:
-        specifier: ^3.15.0
-        version: 3.15.12
-
-  packages/drawer:
-    dependencies:
-      '@alpine-primitives/core':
-        specifier: workspace:*
-        version: link:../core
-      alpinejs:
-        specifier: ^3.15.0
-        version: 3.15.12
-
-  packages/hover-card:
-    dependencies:
-      '@alpine-primitives/core':
-        specifier: workspace:*
-        version: link:../core
-      alpinejs:
-        specifier: ^3.15.0
-        version: 3.15.12
-
-  packages/popover:
-    dependencies:
-      '@alpine-primitives/core':
-        specifier: workspace:*
-        version: link:../core
-      alpinejs:
-        specifier: ^3.15.0
-        version: 3.15.12
-
-  packages/sheet:
-    dependencies:
-      '@alpine-primitives/core':
-        specifier: workspace:*
-        version: link:../core
-      alpinejs:
-        specifier: ^3.15.0
-        version: 3.15.12
-
-  packages/tooltip:
-    dependencies:
-      '@alpine-primitives/core':
-        specifier: workspace:*
-        version: link:../core
       alpinejs:
         specifier: ^3.15.0
         version: 3.15.12
