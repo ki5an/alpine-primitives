@@ -10,6 +10,12 @@
   },
   "dependencies": {
     "@alpine-primitives/dialog": "workspace:*",
+    "@alpine-primitives/alert-dialog": "workspace:*",
+    "@alpine-primitives/popover": "workspace:*",
+    "@alpine-primitives/tooltip": "workspace:*",
+    "@alpine-primitives/hover-card": "workspace:*",
+    "@alpine-primitives/sheet": "workspace:*",
+    "@alpine-primitives/drawer": "workspace:*",
     "alpinejs": "^3.15.0"
   },
   "devDependencies": {

@@ -6,36 +6,198 @@
     <title>Alpine Primitives · Playground</title>
     <link rel="stylesheet" href="./src/styles.css" />
   </head>
-  <body>
-    <main>
-      <h1>Dialog</h1>
+  <body x-data="">
+    <header class="masthead">
+      <h1>Alpine Primitives</h1>
+      <p>Headless, accessible UI primitives for Alpine.js. Every component below is styled from scratch — the primitives ship no CSS.</p>
+    </header>
 
-      <div x-dialog @dialog:open="console.log('opened')" @dialog:close="console.log('closed')">
-        <button class="btn" x-dialog-trigger>Open dialog</button>
-
-        <p class="status">
-          State: <strong x-text="$dialog.open ? 'open' : 'closed'"></strong>
-        </p>
-
-        <div class="overlay" x-dialog-overlay></div>
-
-        <div class="panel" x-dialog-content>
-          <h2 x-dialog-title>Delete project</h2>
-          <p x-dialog-description>
-            This action cannot be undone. This will permanently delete the project.
-          </p>
-
-          <label class="field">
-            Type <strong>DELETE</strong> to confirm
-            <input type="text" placeholder="DELETE" />
-          </label>
-
-          <footer class="actions">
-            <button class="btn ghost" x-dialog-close>Cancel</button>
-            <button class="btn danger" x-dialog-close>Delete</button>
-          </footer>
+    <main class="grid">
+      <!-- ── Dialog ─────────────────────────────────────────── -->
+      <section class="card">
+        <div class="card-head">
+          <h2>Dialog</h2>
+          <p>Modal, focus-trapped, dismissable by backdrop or Escape.</p>
         </div>
-      </div>
+
+        <div x-dialog>
+          <button class="btn" x-dialog-trigger>Open dialog</button>
+          <p class="status">State: <strong x-text="$dialog.open ? 'open' : 'closed'"></strong></p>
+
+          <div class="overlay" x-dialog-overlay></div>
+          <div class="panel" x-dialog-content>
+            <h3 x-dialog-title>Delete project</h3>
+            <p x-dialog-description>This action cannot be undone. This will permanently delete the project.</p>
+
+            <label class="field">
+              Type <strong>DELETE</strong> to confirm
+              <input type="text" placeholder="DELETE" />
+            </label>
+
+            <footer class="actions">
+              <button class="btn ghost" x-dialog-close>Cancel</button>
+              <button class="btn danger" x-dialog-close>Delete</button>
+            </footer>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── Alert Dialog ───────────────────────────────────── -->
+      <section class="card">
+        <div class="card-head">
+          <h2>Alert Dialog</h2>
+          <p>role="alertdialog" — Escape works, backdrop does not. Must choose.</p>
+        </div>
+
+        <div x-alert-dialog>
+          <button class="btn danger" x-alert-dialog-trigger>Delete account</button>
+
+          <div class="overlay" x-alert-dialog-overlay></div>
+          <div class="panel" x-alert-dialog-content>
+            <h3 x-alert-dialog-title>Are you absolutely sure?</h3>
+            <p x-alert-dialog-description>This permanently deletes your account and all associated data.</p>
+
+            <footer class="actions">
+              <button class="btn ghost" x-alert-dialog-cancel>Cancel</button>
+              <button class="btn danger" x-alert-dialog-action @click="alert('Account deleted')">Yes, delete</button>
+            </footer>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── Popover ────────────────────────────────────────── -->
+      <section class="card">
+        <div class="card-head">
+          <h2>Popover</h2>
+          <p>Non-modal floating panel, auto-positioned, flips to stay in view.</p>
+        </div>
+
+        <div x-popover="{ placement: 'bottom-start' }">
+          <button class="btn" x-popover-trigger>Options ▾</button>
+
+          <div class="popover" x-popover-content>
+            <div class="arrow" x-popover-arrow></div>
+            <div class="menu">
+              <button class="menu-item">Rename</button>
+              <button class="menu-item">Duplicate</button>
+              <button class="menu-item">Archive</button>
+            </div>
+            <button class="btn ghost sm" x-popover-close>Close</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── Tooltip ────────────────────────────────────────── -->
+      <section class="card">
+        <div class="card-head">
+          <h2>Tooltip</h2>
+          <p>Hover or focus. Non-interactive label, 300ms delay.</p>
+        </div>
+
+        <div class="row">
+          <span x-tooltip="{ placement: 'top', delay: 300 }">
+            <button class="icon-btn" x-tooltip-trigger aria-label="Add item">＋</button>
+            <div class="tip" x-tooltip-content>
+              <div class="tip-arrow" x-tooltip-arrow></div>
+              Add item
+            </div>
+          </span>
+
+          <span x-tooltip="{ placement: 'bottom' }">
+            <button class="icon-btn" x-tooltip-trigger aria-label="Settings">⚙</button>
+            <div class="tip" x-tooltip-content>
+              <div class="tip-arrow" x-tooltip-arrow></div>
+              Settings
+            </div>
+          </span>
+
+          <span x-tooltip="{ placement: 'right' }">
+            <button class="icon-btn" x-tooltip-trigger aria-label="Delete">🗑</button>
+            <div class="tip" x-tooltip-content>
+              <div class="tip-arrow" x-tooltip-arrow></div>
+              Delete
+            </div>
+          </span>
+        </div>
+      </section>
+
+      <!-- ── Hover Card ─────────────────────────────────────── -->
+      <section class="card">
+        <div class="card-head">
+          <h2>Hover Card</h2>
+          <p>Rich, interactive preview on hover — stays open when pointer enters.</p>
+        </div>
+
+        <p class="prose">
+          Follow
+          <span x-hover-card="{ openDelay: 300, closeDelay: 200 }">
+            <a class="link" x-hover-card-trigger href="#">@adam</a>
+            <div class="card-pop" x-hover-card-content>
+              <div class="card-arrow" x-hover-card-arrow></div>
+              <div class="avatar">A</div>
+              <strong>Adam Wathan</strong>
+              <span class="muted">@adam · Building things</span>
+              <a class="btn sm" href="#">Follow</a>
+            </div>
+          </span>
+          for updates.
+        </p>
+      </section>
+
+      <!-- ── Sheet ──────────────────────────────────────────── -->
+      <section class="card">
+        <div class="card-head">
+          <h2>Sheet</h2>
+          <p>Modal panel anchored to an edge. Slides in from the right.</p>
+        </div>
+
+        <div x-sheet.right>
+          <button class="btn" x-sheet-trigger>Open settings</button>
+
+          <div class="overlay" x-sheet-overlay></div>
+          <div class="sheet" x-sheet-content>
+            <h3 x-sheet-title>Settings</h3>
+            <p x-sheet-description>Manage your workspace preferences.</p>
+
+            <label class="field">Workspace name<input type="text" value="Acme Inc" /></label>
+            <label class="field">Notifications<input type="text" placeholder="All activity" /></label>
+
+            <footer class="actions">
+              <button class="btn" x-sheet-close>Done</button>
+            </footer>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── Drawer ─────────────────────────────────────────── -->
+      <section class="card">
+        <div class="card-head">
+          <h2>Drawer</h2>
+          <p>Bottom edge panel. Drag the handle down to dismiss.</p>
+        </div>
+
+        <div x-drawer.bottom>
+          <button class="btn" x-drawer-trigger>Open filters</button>
+
+          <div class="overlay" x-drawer-overlay></div>
+          <div class="drawer" x-drawer-content>
+            <div class="grabber" x-drawer-handle></div>
+            <h3 x-drawer-title>Filters</h3>
+            <p x-drawer-description>Refine the results. Drag the handle to close.</p>
+
+            <div class="chips">
+              <button class="chip">Available</button>
+              <button class="chip">On sale</button>
+              <button class="chip">New</button>
+              <button class="chip">Popular</button>
+            </div>
+
+            <footer class="actions">
+              <button class="btn" x-drawer-close>Apply</button>
+            </footer>
+          </div>
+        </div>
+      </section>
     </main>
 
     <script type="module" src="./src/main.ts"></script>
